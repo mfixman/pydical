@@ -559,6 +559,14 @@ public:
   int fixed (int lit) const;
 
   //------------------------------------------------------------------------
+  // Query the VSIDS score of a variable.
+  //
+  //   require (VALID)
+  //   ensure (VALID)
+  //
+  double score (int lit) const;
+
+  //------------------------------------------------------------------------
   // Force the default decision phase of a variable to a certain value.
   //
   void phase (int lit);

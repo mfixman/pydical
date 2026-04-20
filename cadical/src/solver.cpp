@@ -648,9 +648,14 @@ int Solver::fixed (int lit) const {
   TRACE ("fixed", lit);
   REQUIRE_VALID_STATE ();
   REQUIRE_VALID_LIT (lit);
-  int res = external->fixed (lit);
-  LOG_API_CALL_RETURNS ("fixed", lit, res);
-  return res;
+  return external->fixed (lit);
+}
+
+double Solver::score (int lit) const {
+  TRACE ("score", lit);
+  REQUIRE_VALID_STATE ();
+  REQUIRE_VALID_LIT (lit);
+  return external->score (lit);
 }
 
 void Solver::phase (int lit) {
@@ -658,7 +663,6 @@ void Solver::phase (int lit) {
   REQUIRE_VALID_STATE ();
   REQUIRE_VALID_LIT (lit);
   external->phase (lit);
-  LOG_API_CALL_END ("phase", lit);
 }
 
 void Solver::unphase (int lit) {

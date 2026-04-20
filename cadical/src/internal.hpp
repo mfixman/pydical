@@ -1227,6 +1227,16 @@ inline int External::fixed (int elit) const {
   return internal->fixed (ilit);
 }
 
+inline double External::score (int elit) const {
+  assert (elit);
+  assert (elit != INT_MIN);
+  int eidx = abs (elit);
+  if (eidx > max_var) return 0.0;
+  int ilit = e2i [eidx];
+  if (!ilit) return 0.0;
+  return internal->stab[abs(ilit)];
+}
+
 /*------------------------------------------------------------------------*/
 
 // We want to have termination checks inlined, particularly the first

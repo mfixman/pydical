@@ -283,6 +283,7 @@ PYBIND11_MODULE(pydical, m) {
   cls.def("freeze", &Solver::freeze);
   cls.def("melt", &Solver::melt);
   cls.def("fixed", &Solver::fixed);
+  cls.def("score", &Solver::score);
   cls.def("phase", &Solver::phase);
   cls.def("unphase", &Solver::unphase);
   cls.def("trace_proof", [](Solver &self, FILE *file, const char *name) {

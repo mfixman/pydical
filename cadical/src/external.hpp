@@ -278,6 +278,7 @@ struct External {
   CaDiCaL::CubesWithStatus generate_cubes(int);
 
   int fixed (int elit) const;   // Implemented in 'internal.hpp'.
+  double score (int elit) const;   // Implemented in 'internal.hpp'.
 
   /*----------------------------------------------------------------------*/
 

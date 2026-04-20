@@ -5,7 +5,10 @@ import subprocess
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
-from pybind11 import get_cmake_dir
+try:
+    from pybind11 import get_cmake_dir as _get_pybind11_cmake_dir
+except ModuleNotFoundError:
+    _get_pybind11_cmake_dir = None
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
 PLAT_TO_CMAKE = {
@@ -59,9 +62,10 @@ class CMakeBuild(build_ext):
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(extdir),
             "-DPYTHON_EXECUTABLE={}".format(sys.executable),
             "-DPYDICAL_VERSION_INFO={}".format(self.distribution.get_version()),
-            "-Dpybind11_ROOT={}".format(get_cmake_dir()),
             "-DCMAKE_BUILD_TYPE={}".format(cfg),  # not used on MSVC, but no harm
         ]
+        if _get_pybind11_cmake_dir is not None:
+            cmake_args += ["-Dpybind11_ROOT={}".format(_get_pybind11_cmake_dir())]
         build_args = []
 
         if self.compiler.compiler_type != "msvc":
@@ -71,7 +75,7 @@ class CMakeBuild(build_ext):
             # Users can override the generator with CMAKE_GENERATOR in CMake
             # 3.15+.
             if not cmake_generator:
-                cmake_args += ["-GNinja"]
+                cmake_args += ["-GUnix Makefiles"]
 
         else:
 
@@ -105,13 +109,20 @@ class CMakeBuild(build_ext):
 
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
+        else:
+            # Clear stale CMake cache so generator/build-tool changes are respected.
+            cmake_cache = os.path.join(self.build_temp, "CMakeCache.txt")
+            cmake_files = os.path.join(self.build_temp, "CMakeFiles")
+            if os.path.exists(cmake_cache):
+                os.remove(cmake_cache)
+            if os.path.isdir(cmake_files):
+                import shutil
+                shutil.rmtree(cmake_files)
 
         subprocess.check_call(
-            ["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp
+            ["cmake", "-S", ext.sourcedir, "-B", self.build_temp] + cmake_args
         )
-        subprocess.check_call(
-            ["cmake", "--build", "."] + build_args, cwd=self.build_temp
-        )
+        subprocess.check_call(["cmake", "--build", self.build_temp] + build_args)
 
 
 setup(
